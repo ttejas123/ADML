@@ -1,8 +1,10 @@
 import express from 'express';
 import clipboardy from 'clipboardy';
+import cors from 'cors'
 const app = express();
 const port = 3000;
 
+app.use(cors())
 // Define your APIs
 app.get('/1', (req, res) => {
   // Fetch data from the command line interface
