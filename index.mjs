@@ -136,7 +136,7 @@
 
 
 import express from 'express';
-import clipboardy from 'clipboardy';
+// import clipboardy from 'clipboardy';
 const app = express();
 const port = 3000;
 
@@ -170,7 +170,7 @@ app.get('/1', (req, res) => {
   </script>`;
 
   // Copy response to clipboard
-  clipboardy.writeSync(data);
+  // clipboardy.writeSync(data);
 
   // Close the client's window/tab using JavaScript
   const closeWindowScript = data;
