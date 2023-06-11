@@ -2,7 +2,7 @@ import express from 'express';
 import clipboardy from 'clipboardy';
 import cors from 'cors'
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors())
 // Define your APIs
