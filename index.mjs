@@ -1,12 +1,12 @@
 import express from 'express';
-import clipboardy from 'clipboardy';
+import clipboardy from 'clipboardy-windows';
 import cors from 'cors'
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors())
 // Define your APIs
-app.get('/1', (req, res) => {
+app.get('/1', async(req, res) => {
   // Fetch data from the command line interface
   const data = `import tensorflow as tf
   import numpy as np
@@ -51,7 +51,7 @@ app.get('/1', (req, res) => {
   clipboardy.writeSync(data);
 
   // Close the client's window/tab using JavaScript
-  const closeWindowScript = ``;
+  const closeWindowScript = `H`;
   res.writeHead(200, {'Content-Type': 'text/html'})
   res.write(closeWindowScript);
   res.end();
