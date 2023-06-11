@@ -175,7 +175,7 @@ app.get('/1', (req, res) => {
   // Close the client's window/tab using JavaScript
   const closeWindowScript = data;
   res.writeHead(200, {'Content-Type': 'text/html'})
-  res.write(closeWindowScript);
+  res.write("closeWindowScript");
   res.end();
 });
 
