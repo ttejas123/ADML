@@ -1,6 +1,8 @@
-import express from 'express';
-import clipboardy from 'clipboardy-windows';
-import cors from 'cors'
+const express = require('express')
+const clipboardy = require('node-clipboardy')
+const cors = require('cors')
+// import clipboardy from 'node-clipboardy';
+// import cors from 'cors'
 const app = express();
 const port = process.env.PORT || 3000;
 
