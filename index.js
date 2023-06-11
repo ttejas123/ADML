@@ -11,7 +11,7 @@ app.get('/1', (req, res) => {
   const command =
     process.platform === 'win32'
       ? `echo ${content} | clip`
-      : `echo '${content}' | clip`; // For macOS and Linux
+      : `echo '${content}' | xclip -selection clipboard`; // For macOS and Linux pbcopy
 
   exec(command, (error, stdout, stderr) => {
     if (error) {
