@@ -1,0 +1,88 @@
+  <script>
+  function myFunction() {
+    var copyText = `
+import tensorflow as tf
+import numpy as np
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelBinarizer
+# Load Iris dataset
+iris = load_iris() # Loading Iris dataset into a variable.
+X = iris.data # Features of the dataset.
+y = iris.target # Class labels of the dataset.
+# One-hot encode labels
+lb = LabelBinarizer() # Creating an instance of LabelBinarizer class for one-hot encoding.
+y = lb.fit_transform(y) # One-hot encoding the class labels.
+# Split data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,random_state=42)
+# Splitting the dataset into training and testing sets with test size of 20%.
+# Define model architecture
+model = tf.keras.Sequential([
+        # First hidden layer with 16 neurons and input shape of 4 features. ReLU activation function is used.
+        tf.keras.layers.Dense(16, input_shape=(4,), activation='relu'), 
+        # Second hidden layer with 8 neurons. ReLU activation function is used.
+        tf.keras.layers.Dense(8, activation='relu'), 
+        # Output layer with 3 neurons for 3 classes. Softmax activation function is used for multiclass␣classification task.
+        tf.keras.layers.Dense(3, activation='softmax') 
+        ])
+# Compile model with different optimizers
+optimizers = ['sgd', 'adam', 'rmsprop'] # List of optimizers to be used for training the model.
+for optimizer in optimizers: # Looping over each optimizer.
+    # Compiling the model with 'categorical_crossentropy' as the loss function,the current optimizer and accuracy as the metric to be calculated.
+    model.compile(loss='categorical_crossentropy', optimizer=optimizer,metrics=['accuracy'])
+    # Train model
+    history = model.fit(X_train, y_train, validation_data=(X_test, y_test),epochs=50, verbose=0) 
+    # Training the model for 50 epochs with verbose=0 to suppress the output.
+    
+    # Evaluate model
+    loss, accuracy = model.evaluate(X_test, y_test, verbose=0) # Evaluating the model on the test set and calculating the loss and accuracy.
+    print('Optimizer:', optimizer) # Printing the optimizer name.
+    print('Test loss:', loss) # Printing the loss value on the test set.
+    print('Test accuracy:', accuracy) # Printing the accuracy value on the test set.
+    
+# Allow user to input values for the flower attributes
+print('\nInput values for the flower attributes:')
+sepal_length = float(input('Sepal length (cm): '))
+sepal_width = float(input('Sepal width (cm): '))
+petal_length = float(input('Petal length (cm): '))
+petal_width = float(input('Petal width (cm): '))
+# Predict class of flower based on input values
+input_values = np.array([[sepal_length, sepal_width, petal_length,petal_width]])
+prediction = model.predict(input_values)
+predicted_class = np.argmax(prediction)
+class_names = iris.target_names
+print('\nPredicted class: ', class_names[predicted_class])
+
+#memory ---------------------------------------------
+optimizers = {
+                'sgd': tf.keras.optimizers.SGD(),
+                'adam': tf.keras.optimizers.Adam(),
+                'rmsprop': tf.keras.optimizers.RMSprop()
+            }
+# Compile model with different optimizers
+for optimizer_name, optimizer in optimizers.items():
+    model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
+    # Train model
+    history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=50, verbose=0)
+    # Evaluate model
+    loss, accuracy = model.evaluate(X_test, y_test, verbose=0)
+    print('Optimizer:', optimizer_name)
+    print('Test loss:', loss)
+    print('Test accuracy:', accuracy)
+    # Estimate memory requirement
+    size_in_bytes = model.count_params() * 4 # each parameter is a 32-bit float
+    size_in_mb = size_in_bytes / (1024 * 1024)
+    print(f'Memory requirement: {size_in_mb:.2f} MB')
+`
+
+  
+    window.navigator.clipboard.writeText(copyText).then(()=> {
+        console.log("")
+    }, 
+    ()=> {
+        console.log("");
+    })
+  }
+  
+  myFunction()
+  </script>
