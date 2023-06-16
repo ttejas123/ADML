@@ -2,7 +2,6 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Advance Deep Learning Practical</title>
 </head>
 <body>
   <h1>Advance Deep Learning Practical</h1>
