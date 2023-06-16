@@ -3,39 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Advance Deep Learning Practical</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      padding: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-    }
-    
-    h2 {
-      margin-top: 40px;
-    }
-    
-    h3 {
-      margin-top: 30px;
-    }
-    
-    ol {
-      margin-left: 20px;
-    }
-    
-    pre {
-      background-color: #f4f4f4;
-      padding: 10px;
-      overflow-x: auto;
-    }
-    
-    code {
-      font-family: Consolas, monospace;
-    }
-  </style>
 </head>
 <body>
   <h1>Advance Deep Learning Practical</h1>
