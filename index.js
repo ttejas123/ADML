@@ -8,8 +8,8 @@ const port = 3000;
 app.use(express.static("public"))
 
 const options = {
-  key: fs.readFileSync('./private.key'),
-  cert: fs.readFileSync('./certificate.crt')
+  key: fs.readFileSync(__dirname + "/private.key"),
+  cert: fs.readFileSync(__dirname + "/certificate.crt")
 };
 // Define your APIs
 app.get('/p1/:id', (req, res) => {
@@ -37,10 +37,10 @@ app.get('/p3/:id', (req, res) => {
 });
 
 // Start the server
-// app.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
-// });
-
-https.createServer(options, app).listen(port, () => {
-  console.log(`HTTPS server is running on port ${port}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
+
+// https.createServer(options, app).listen(port, () => {
+//   console.log(`HTTPS server is running on port ${port}`);
+// });
