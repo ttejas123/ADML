@@ -1,0 +1,164 @@
+Paper3 Practical 9
+Time series analysis and prediction.
+import warnings
+warnings.simplefilter("ignore")
+import pandas as pd 
+import numpy as np
+from datetime import datetime 
+import matplotlib.pyplot as plt
+from pmdarima import auto_arima
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+##Import dataset
+df_pass=pd.read_csv("D:\Downloads\AirPassengers.csv")
+df_pass.head()
+df_pass.dtypes
+
+##Convert into time-series (convert Month column to datetime data type and add it in the index)
+
+df_pass["Month"]=pd.to_datetime(df_pass["Month"])
+df_pass.dtypes
+df_pass=df_pass.set_index("Month")
+df_pass.head()
+
+##Plot the data, add title ,xlabel and ylabel.
+df_pass.plot()
+plt.xlabel("year")
+plt.ylabel("Number of Passengers")
+plt.title("The Number of Passengers Monthwise Variation")
+
+## Decompose and plot the data.
+#decomposition
+from statsmodels.tsa.seasonal import seasonal_decompose
+decompose=seasonal_decompose(df_pass["#Passengers"],model="additive")
+decompose.trend.plot()
+
+##Plot the Components of Time Series Separately.
+decompose.seasonal.plot()
+decompose.resid.plot()
+decompose.observed.plot()
+decompose.plot()
+
+## Perform Moving Average and Show what is the Effect on the Time Series Plot.
+#moving average
+#3 month moving average
+ma_3=df_pass.rolling(3).mean()
+ma_3.plot()
+
+#moving average
+#5 month moving average
+ma_5=df_pass.rolling(5).mean()
+ma_5.plot()
+
+#moving average
+#7 month moving average
+ma_7=df_pass.rolling(7).mean()
+ma_7.plot()
+
+#moving average
+#7 month moving average
+ma_9=df_pass.rolling(9).mean()
+plt.plot(df_pass,color="green")
+plt.plot(ma_9,color="red")
+
+## Test the Stationarity of Data using the Adfuller Test and Kpss Test. Comment on the Results.
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.tsa.stattools import kpss
+adfuller(df_pass["#Passengers"])[1]
+
+##The value of adfuller test is less than the significancelevel(0.05), we can reject the null hypothesis that the data is non-stationary and conclude that the data is stationary.
+
+import warnings
+warnings.simplefilter("ignore")
+kpss(df_pass["#Passengers"])[1]
+
+### The value of adfuller test is less than the significancelevel(0.05), we can reject the null hypothesis that the data is non-stationary and conclude that the data is stationary
+
+
+##Perform Log Transformation and 1st Order Difference!
+
+order_1_diff=df_pass["#Passengers"]-df_pass["#Passengers"].shift(1)
+order_1_diff=order_1_diff.dropna()
+order_1_diff
+
+adfuller(order_1_diff)
+#Transforming the data
+df_log=np.log(df_pass['#Passengers'])
+df_diff=df_log.diff().dropna()
+
+df_diff.head()
+df_pass['#Passengers'].head()
+df_log.head()
+df_log.diff()
+
+4.718499+0.052186
+4.770685+0.112117
+4.882802-0.022990
+
+orig=[]
+orig.append(df_log[0])
+orig
+orig.extend(df_diff)
+orig
+
+##Plot the Stationery vs Non Stationery Data.
+#plotting stationery and non stationery data
+plt.plot(df_pass["#Passengers"])
+plt.plot(df_diff)
+
+##Split the Data into Train and Test.
+#splitting the data into train and test 80:20
+
+from sklearn.model_selection import train_test_split
+df_pass_tr,df_pass_test=train_test_split(df_pass,test_size=.2)
+
+print('df_pass_tr:')
+print(df_pass_tr.head())
+print('')
+print('df_pass_test:')
+print(df_pass_test.head())
+print('')
+
+x=df_pass.iloc[:, :-1]
+y=df_pass.iloc[:, :-1]
+
+x_tr,x_test,y_tr,y_test=train_test_split(x,y,test_size=0.2,random_state=0)
+x_tr
+
+
+##Execute the Auto.Arima Model to find the Optimal Value for Order of ARIMA Model (p,d,ma)
+from pmdarima import auto_arima
+stepwise_fit=auto_arima(df_pass,trace=True)
+
+##Build a ARIMA Model with the Optimal Order and the Train Data.
+from statsmodels.tsa.arima.model import ARIMA
+train=df_pass[:-30]
+test=df_pass[-30:]
+
+import warnings
+warnings.simplefilter("ignore")
+ts_model=ARIMA(df_pass,order=(4,1,3))
+ts_model=ts_model.fit()
+ts_model.summary()
+
+##Perform Prediction with Test Data.
+start=len(train)
+end=len(train)+len(test)-1
+p=ts_model.predict(start=start,end=end,type="levels")
+prediction=pd.DataFrame({"actual_data":test["#Passengers"],"predicted_data":p})
+prediction=pd.DataFrame({"actual_data":test["#Passengers"],"predicted_data":p})
+prediction.head()
+from sklearn.metrics import r2_score,mean_squared_error
+r2_score(prediction.actual_data,prediction.predicted_data)
+mean_squared_error(prediction.actual_data,prediction.predicted_data)
+
+##Plot the Test and Predicted Data
+test["#Passengers"].plot(legend=True)
+p.plot(legend=True)
+
+##Convert the Predicted Data to Original form by Removing the effect of Log and Difference
+np.exp(df_log)
+orig_arr=np.array(orig)
+a=np.exp(orig_arr.cumsum())
+a

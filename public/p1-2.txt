@@ -1,0 +1,142 @@
+Practial 3
+Model the Restaurant tip prediction problem using linear regression, Ridge, Lasso and ElasticNet algorithm. Compare the r2_score of each method.
+
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge, Lasso, ElasticNet
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import warnings
+warnings.simplefilter("ignore")
+
+df = pd.read_csv('tips_dataset.csv')
+
+df.head()
+
+#data processing 
+df['sex']=df['sex'].replace({'Female':0, 'Male':1})
+df['smoker']=df['smoker'].replace({'No':0, 'Yes':1})
+df['time']=df['time'].replace({'Lunch':0, 'Dinner':1})
+df['day']=df['day'].replace({'Thur':0, 'Fri':1, 'Sat':0, 'Sun':1})
+
+df.head()
+X=df.drop('tip', axis=1)
+y=df['tip']
+y
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+X_train.shape, X_test.shape
+y_train.shape, y_test.shape
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# linear Regression model 
+linreg=LinearRegression()
+linreg.fit(X_train, y_train)
+y_train_pred=linreg.predict(X_train)
+y_pred=linreg.predict(X_test)
+print('*****Traning*****')
+print("MAE:", mean_absolute_error(y_train,y_train_pred))
+print("MSE:", mean_squared_error(y_train,y_train_pred))
+print("r2 score:", r2_score(y_train,y_train_pred))
+print('*****Testing*****')
+print("MAE:", mean_absolute_error(y_test,y_pred))
+print("MSE:", mean_squared_error(y_test,y_pred))
+print("r2 score:", r2_score(y_test,y_pred))
+
+cols=X_train.columns
+cols
+
+# print equation of the linear model 
+
+eq=""
+for i in range(0,6):
+    eq=eq+str(cols[i]) + "*" +str(linreg.coef_[i])+ "+"
+    print("tip",eq,linreg.intercept_)
+
+# Ridge Regression model with r2 score
+ridreg=Ridge()
+ridreg.fit(X_train, y_train)
+y_pred=ridreg.predict(X_test)
+y_train_pred=ridreg.predict(X_train)
+print('*****Traning*****')
+print("MAE:", mean_absolute_error(y_train,y_train_pred))
+print("MSE:", mean_squared_error(y_train,y_train_pred))
+print("r2 score:", r2_score(y_train,y_train_pred))
+print('*****Testing*****')
+print("MAE:", mean_absolute_error(y_test,y_pred))
+print("MSE:", mean_squared_error(y_test,y_pred))
+print("r2 score:", r2_score(y_test,y_pred))
+
+# Lasso regaression model with r2 score
+lareg=Lasso()
+lareg.fit(X_train,y_train)
+y_pred=lareg.predict(X_test)
+y_train_pred=lareg.predict(X_train)
+print('*****Traning*****')
+print("MAE:", mean_absolute_error(y_train,y_train_pred))
+print("MSE:", mean_squared_error(y_train,y_train_pred))
+print("r2 score:", r2_score(y_train,y_train_pred))
+print('*****Testing*****')
+print("MAE:", mean_absolute_error(y_test,y_pred))
+print("MSE:", mean_squared_error(y_test,y_pred))
+print("r2 score:", r2_score(y_test,y_pred))
+
+# ElasticNet regression with and r2 score
+lrE=ElasticNet()
+lrE.fit(X_train,y_train)
+y_pred=lrE.predict(X_test)
+y_train_pred=lrE.predict(X_train)
+print('*****Traning*****')
+print("MAE:", mean_absolute_error(y_train,y_train_pred))
+print("MSE:", mean_squared_error(y_train,y_train_pred))
+print("r2 score:", r2_score(y_train,y_train_pred))
+print('*****Testing*****')
+print("MAE:", mean_absolute_error(y_test,y_pred))
+print("MSE:", mean_squared_error(y_test,y_pred))
+print("r2 score:", r2_score(y_test,y_pred))Paper1 Practical 2
+Practical 2  Model the salary prediction problem using linear regression algorithm.  Use the data set:
+
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+
+df=pd.read_csv('Salary_Data.csv')
+
+df.head()
+
+x=df.iloc[:, :-1].values
+y=df.iloc[:, 1].values
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test=train_test_split(x,y,test_size=0.2,)
+
+x_train.shape
+
+y_train.shape
+
+from sklearn.linear_model import LinearRegression
+linreg=LinearRegression()
+linreg.fit(x_train,y_train)
+print ('Coeff:', linreg.coef_)
+print ('Intercept:',linreg.intercept_)
+
+y_pred= linreg.predict(x_test)
+y_pred
+y_test
+
+plt.scatter(x_test,y_test, color='red')
+plt.plot(x_train, linreg.predict(x_train),color='blue')
+plt.title("Years of expereicne vs Salary")
+plt.xlabel("Years of exp.")
+plt.ylabel("Salary")
+plt.show()
+
+plt.scatter(x_train,y_train, color='red')
+plt.plot(x_train, linreg.predict(x_train),color='blue')
+plt.title("Years of expereicne vs Salary")
+plt.xlabel("Years of exp.")
+plt.ylabel("Salary")
+plt.show()

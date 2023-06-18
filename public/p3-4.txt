@@ -1,0 +1,140 @@
+Paper3 Practical 4
+Simple linear regression assignment
+  
+##import the csv file in R/Python
+
+import warnings
+warnings.simplefilter("ignore")
+import pandas as pd
+#from statsmodels.formula.api import ols
+#from sklearn.model_selection import train_test_split
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+
+df=pd.read_csv("D:/Downloads/Admission_Predict.csv")
+
+##Print the column names.
+df.columns
+df.columns=['SerialNo.', 'GRE_Score', 'TOEFL_Score', 'University_Rating', 'SOP','LOR', 'CGPA', 'Research', 'Admit']
+df.columns
+
+## Print the number of rows and number of columns.
+df.shape
+
+##Perform univariate analysis. print boxplot and density plot and give insights into the mean, median, skewness and kurtosis of data
+
+#univariate analysis
+sns.boxplot(df['SOP'])
+
+sns.kdeplot(df['SOP'])
+
+df.SOP.plot.density(color='green')
+
+print("Mean: ",df['SOP'].mean())
+print("Median: ",df['SOP'].median())
+print("Skew: ",df['SOP'].skew())
+print("Kurtosis: ",df['SOP'].kurtosis())
+
+print("Mean: ",df['CGPA'].mean())
+print("Median: ",df['CGPA'].median())
+print("Skew: ",df['CGPA'].skew())
+print("Kurtosis: ",df['CGPA'].kurtosis())
+
+##Print a correlation plot and write inference about the influence of the features on the target variable.
+
+#corelation Coefficient 
+from scipy.stats import pearsonr
+corr,_=pearsonr(df['GRE_Score'],df['TOEFL_Score'])
+corr #no correlation
+
+#corelation coefficient 
+sns.set(rc = {'figure.figsize':(20,20)})
+sns.heatmap(df.corr(),annot=True,cmap="tab10",square=True,linecolor='w')
+
+##Create sample 80:20. Split the data into train and test sets
+
+#splitting the data into train and test 80:20
+
+from sklearn.model_selection import train_test_split
+df_tr,df_test=train_test_split(df,test_size=.2)
+
+print('df_tr:')
+print(df_tr.head())
+print('')
+print('df_test:')
+print(df_test.head())
+print('')
+
+##Create a simple linear regression model.
+#simple linear regression
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+#df=df.loc[:,['GRE_Score','TOEFL_Score']]
+#data_.head()
+#x_train=pd.DataFrame(df['GRE_Score'])
+#y_train=pd.DataFrame(df['TOEFL_Score'])
+x_train=df.loc[:,["GRE_Score"]]
+y_train=df["TOEFL_Score"]
+model=LinearRegression().fit(x_train,y_train)
+
+
+##Print the coeffiecient and intercept.
+
+print("Coeffiecient: ",model.coef_)
+print("Intercept: ",model.intercept_)
+
+p=model.predict(x_train)
+p
+
+r2_score(y_train,p)
+
+##Create a scatter plot with x and y showing best fit line.
+
+# scatter plot with x and y showing best fit line
+plt.scatter(x_train,y_train)
+plt.plot(x_train.GRE_Score,p,color='red')
+plt.show()
+
+##Calculate the train and test accuracy.
+
+#multiple linear regression
+
+from sklearn.metrics import accuracy_score
+#df_tr,df_test=train_test_split(df,test_size=0.2,random_state=1)
+x_train, x_test, y_train, y_test=train_test_split(x_train,y_train, test_size=0.2)
+x=df.loc[:,["SOP","CGPA"]]
+y=df["GRE_Score"]
+model=LinearRegression().fit(x,y)
+print("Coeffiecient: ",model.coef_)
+print("Intercept: ",model.intercept_)
+
+##Perform model2 with multiple linear regression.
+import statsmodels.api as sm
+#the model2 summary
+x=sm.add_constant(x)
+model2=sm.OLS(y,x).fit()
+print_model2=model2.summary()
+
+##Print the model summary.
+
+print(print_model2)
+
+##Calculate the test accuracy.
+
+#simple linear regression
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
+x_test=pd.DataFrame(df['GRE_Score'])
+y_test=pd.DataFrame(df['TOEFL_Score'])
+x_test=df.loc[:,["GRE_Score"]]
+y_test=df["TOEFL_Score"]
+model2=LinearRegression().fit(x_test,y_test)
+
+p=model2.predict(x_test)
+p
+
+r2_score(y_test,p)

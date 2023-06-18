@@ -1,0 +1,95 @@
+Paper3 Practical 7
+Perform classification on Iris dataset with KNeigborsClassifier
+
+import warnings
+warnings.simplefilter("ignore")
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import GridSearchCV,train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.cluster import KMeans
+from sklearn.metrics import classification_report,accuracy_score,confusion_matrix,precision_score
+from sklearn.preprocessing  import StandardScaler
+
+#Import dataset
+df=pd.read_csv("D:\Downloads\Iris.csv")
+df
+
+##Print dtypes
+df.dtypes
+
+## Print the shape
+
+df.shape
+
+##Print the first 10 records
+df.head(10)
+
+##Print the column names
+df.columns
+
+##Show the missing values
+#Missing values
+df.isna().sum()
+
+# Create x and y variable
+x=df.drop(["Id","Species"],axis=1)
+y=df["Species"]
+x.shape
+x.head()
+y
+#y=y.map({"Iris-setosa":1,"Iris-virginica":0})
+# z score normalization
+x_scaled=StandardScaler().fit_transform(x)
+
+x_scaled
+
+##Split the dataset using stratified sampling.
+x_tr,x_test,y_tr,y_test=train_test_split(x,y,test_size=0.2,stratify=y)
+# Intialising a range of parameters
+params={"n_neighbors":range(3,11)}
+params
+
+
+##Identify the best value of k using gridsearchcv
+# select the optimal value of k
+gv=GridSearchCV(estimator=KNeighborsClassifier(),param_grid=params).fit(x_tr,y_tr)
+gv
+
+##Create an elbow plot for a range of k values use f1_score as the accuracy measure.
+wcss=[]
+for i in range(2,11):
+    K=KMeans(n_clusters=i,init="random").fit(x)
+    wcss.append(K.inertia_)
+wcss
+plt.plot(range(2,11),wcss,c="green",marker="o",markerfacecolor="red")
+plt.title('Elbow Method For Optimal k')
+plt.xlabel('K')
+plt.ylabel('wcss')
+plt.show()
+
+### Create the KNN model with the best parameters.
+bp=gv.best_params_
+bp
+
+#create final model
+model=KNeighborsClassifier(n_neighbors=bp["n_neighbors"]).fit(x_tr,y_tr)
+p_tr=model.predict(x_tr)
+p_test=model.predict(x_test)
+
+##Predict the train and test accuracy.
+accuracy_score(y_tr,p_tr)
+accuracy_score(y_test,p_test)
+
+##accuracy_score(y_test,p_test)
+
+#evaluation matrics
+confusion_matrix(y_tr,p_tr)
+confusion_matrix(y_test,p_test)
+
+print(classification_report(y_tr,p_tr))
+
+print(classification_report(y_test,p_test))

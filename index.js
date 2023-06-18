@@ -1,50 +1,46 @@
 const express = require("express");
+const fs = require("fs");
+const https = require("https")
 // import clipboardy from 'clipboardy';
 const app = express();
 const port = 3000;
 
 app.use(express.static("public"))
+
+const options = {
+  key: fs.readFileSync('./private.key'),
+  cert: fs.readFileSync('./certificate.crt')
+};
 // Define your APIs
-app.get('/1', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/1.html");
+app.get('/p1/:id', (req, res) => {
+  const id = req.params.id
+  const content = fs.readFileSync(__dirname + "/public" +`/p1-${id}.txt`, 'utf-8');
+  let basehtml = fs.readFileSync(__dirname + "/public" +`/Base.html`, 'utf-8');
+  basehtml = basehtml.replace("<INSERT_CONTENT>", content)
+  res.send(basehtml);
 });
 
-app.get('/2', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/2.html");
+app.get('/p2/:id', (req, res) => {
+  const id = req.params.id
+  const content = fs.readFileSync(__dirname + "/public" +`/p2-${id}.txt`, 'utf-8');
+  let basehtml = fs.readFileSync(__dirname + "/public" +`/Base.html`, 'utf-8');
+  basehtml = basehtml.replace("<INSERT_CONTENT>", content)
+  res.send(basehtml);
 });
 
-app.get('/3', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/3.html");
+app.get('/p3/:id', (req, res) => {
+  const id = req.params.id
+  const content = fs.readFileSync(__dirname + "/public" +`/p3-${id}.txt`, 'utf-8');
+  let basehtml = fs.readFileSync(__dirname + "/public" +`/Base.html`, 'utf-8');
+  basehtml = basehtml.replace("<INSERT_CONTENT>", content)
+  res.send(basehtml);
 });
 
-app.get('/4', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/4.html");
-});
-
-app.get('/5', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/5.html");
-});
-
-app.get('/6', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/6.html");
-});
-
-app.get('/7', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/7.html");
-});
-
-app.get('/8', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/8.html");
-});
-
-app.get('/9', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/9.html");
-});
-
-app.get('/10', (req, res) => {
-  res.sendFile(__dirname + "/public" +"/10.html");
-});
 // Start the server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+// app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
+
+https.createServer(options, app).listen(port, () => {
+  console.log(`HTTPS server is running on port ${port}`);
 });

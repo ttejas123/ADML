@@ -1,0 +1,191 @@
+Paper3 Practical 10
+ Data reduction using PCA and Lasso regression Diabetes CDC
+
+import warnings
+warnings.simplefilter("ignore")
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from statsmodels.formula.api import ols
+from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.metrics import r2_score,mean_squared_error
+from sklearn.ensemble import RandomForestRegressor
+from sklearn import tree
+
+df_diabetes=pd.read_csv("D:\Downloads\diabetes_binary_health_indicators_BRFSS2015.csv")
+df_diabetes
+df_diabetes.dtypes
+
+#Show the density plot for all numeric variable and write inferences.
+# Select only the numeric columns
+numeric_cols = df_diabetes.select_dtypes(include='number').columns
+
+# Plot density plots for numeric variables
+for col in numeric_cols:
+    sns.kdeplot(data=df_diabetes, x=col)
+    plt.title(f'Density Plot: {col}')
+    plt.show()
+
+#Explore the shape of dataset.
+df_diabetes.shape
+
+## Write inferences on the summary of the model.
+str_col
+model_linear=ols(formula=f"BMI~{str_col}",data=df_diabetes).fit()
+model_linear.summary()
+
+import statsmodels.api as sm
+
+# Select the target variable (y) and predictor variables (X)
+X = sm.add_constant(df_diabetes.drop(columns=['BMI']))
+y = df_diabetes['BMI']
+
+# Fit the linear regression model
+model = sm.OLS(y, X)
+results = model.fit()
+
+# Print the summary of the model
+print(results.summary())
+
+##Divide your data into x and y.
+# Divide the data into X and y
+X = df_diabetes.drop(columns=['BMI'])
+y = df_diabetes['BMI']
+
+## Perform normalisation using standardscaler.
+x=df_diabetes.drop("BMI",axis=1)
+colnames=x.columns
+str_col="+".join(colnames)
+
+#scaling the data
+x_scaled=StandardScaler().fit_transform(x)
+x_scaled
+
+## Perform PCA.
+#perform PCA
+pca_mod=PCA(n_components=.95)
+x.shape
+x_pca=pca_mod.fit_transform(x_scaled)
+x_pca.shape
+pca_mod.explained_variance_ratio_
+np.cumsum(pca_mod.explained_variance_ratio_)
+
+## Select BMI as y.
+y=df_diabetes["BMI"]
+from sklearn.model_selection import train_test_split
+x_tr,x_test,y_tr,y_test=train_test_split(x_pca,y,test_size=.2)
+
+##Try other regression models like knn and decision tree and compare the scores. Write inferences where necessary.
+
+from sklearn.model_selection import train_test_split
+
+# Split the data into train and test sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Perform KNN regression
+knn = KNeighborsRegressor()
+knn.fit(X_train, y_train)
+knn_score = knn.score(X_test, y_test)
+print("KNN Score:", knn_score)
+
+dtree=DecisionTreeRegressor().fit(x_tr,y_tr)
+dtree
+p_tr=dtree.predict(x_tr)
+r2_score(y_tr,p_tr)
+actual_pred=pd.DataFrame({"actual":y_tr,"predicted":p_tr})
+actual_pred
+print(tree.export_text(dtree))
+p_test=dtree.predict(x_test)
+p_test
+y_test
+actual_pred=pd.DataFrame({"actual":y_test,"predicted":p_test})
+actual_pred
+r2_score(actual_pred.actual,actual_pred.predicted)
+
+##Show explained variances.
+# Show explained variances
+explained_variances = pca_mod.explained_variance_ratio_
+print("Explained Variances:", explained_variances)
+
+##Show the major columns which make up each principal components.
+from xgboost import XGBRegressor
+model=XGBRegressor()
+model.fit(x_tr,y_tr)
+p=model.predict(x_tr)
+r2_score(y_tr,p)
+p=model.predict(x_test)
+r2_score(y_test,p)
+pca_mod.components_.shape
+major_comp=[]
+for i in range(0,pca_mod.components_.shape[0]):
+    major_comp.append(pca_mod.components_[i].argmax())
+major_comp
+col=2
+row=10
+pca_mod.components_[0]
+
+## Plot a line plot showing explained variances.
+# Plot line plot of explained variances
+plt.plot(np.arange(1, len(explained_variances) + 1), np.cumsum(explained_variances))
+plt.xlabel('Number of Principal Components')
+plt.ylabel('Cumulative Explained Variance')
+plt.title('Explained Variance by Principal Components')
+plt.show()
+
+##Show the constitution of the components using pie plot.
+for i in range(0,pca_mod.components_.shape[0]):
+    plt.figure(figsize=(8,6))
+    labels=range(0,len(np.abs(pca_mod.components_[0])))
+    plt.pie(np.abs(pca_mod.components_[i]), autopct='%.2f',labels=labels)
+    plt.legend()
+    plt.show()
+## Perform linear regression using old statsmodels.
+lm_linear=LinearRegression().fit(x,y)
+lm_linear.coef_
+lin_coef=pd.DataFrame({"features":x.columns,"coef":lm_linear.coef_.flatten()})
+lin_coef
+plt.figure(figsize=(20,20))
+sns.barplot(x="features",y="coef",data=lin_coef)
+lm_linear.score(x,y)
+
+##Create model using ridge and lasso regression.
+from sklearn.linear_model import Ridge
+ridge_mod=Ridge(alpha=.01).fit(x,y)
+ridge_mod.coef_
+plt.figure(figsize=(20,20))
+sns.barplot(x=x.columns,y=ridge_mod.coef_.flatten())
+ridge_mod.score(x,y)
+from sklearn.linear_model import Lasso
+lasso_mod=Lasso(alpha=.01).fit(x,y)
+lasso_mod.coef_
+lasso_coef=pd.DataFrame({"features":x.columns,"coef":lasso_mod.coef_})
+lasso_coef
+plt.figure(figsize=(50,50))
+sns.barplot(x="features",y="coef",data=lasso_coef)
+
+##Show how features are eliminated using lasso regression.
+# from sklearn.linear_model import Ridge, Lasso
+
+# Create Ridge regression model
+ridge = Ridge(alpha=0.5)
+ridge.fit(X_train, y_train)
+
+# Create Lasso regression model
+lasso = Lasso(alpha=0.5)
+lasso.fit(X_train, y_train)
+
+# Get the coefficients of Ridge regression
+ridge_coefs = ridge.coef_
+
+# Get the coefficients of Lasso regression
+lasso_coefs = lasso.coef_
+
+# Show how features are eliminated using Lasso regression
+eliminated_features = X.columns[lasso_coefs == 0]
+print("Eliminated Features using Lasso regression:")
+print(eliminated_features)

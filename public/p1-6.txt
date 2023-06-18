@@ -1,0 +1,91 @@
+Paper1 Practical 6
+Apply perceptron algorithm on iris dataset and find the multivariate linear regression equation.
+
+##Perceptron
+#import libraries
+import numpy as np
+import pandas as pd
+
+from sklearn.datasets import load_iris
+iris=load_iris()
+
+##Dataset consist of 3 different types of flowers iris setosa, verginica and versicolor
+
+iris
+
+iris.target_names                                        
+# petal length (cm), petal width (cm), as inputs
+X=iris.data[:,(2,3)]
+X
+
+##Categories
+#0 setosa
+#1 versicolor
+#2 verginica
+
+y=(iris.target ==0)
+y
+
+y=(iris.target==0).astype(int)
+y
+
+from sklearn.linear_model import Perceptron
+
+pclassifier=Perceptron(random_state=42)
+pclassifier.fit(X,y)
+
+y_pred=pclassifier.predict(X)
+y_pred
+
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y,y_pred))
+
+pclassifier.coef_
+
+pclassifier.intercept_
+
+##hence the equation is y= (-1.4)Petal length + (-2.2)Petal width + 4
+# sepal length (cm), sepal width (cm), as inputs
+X=iris.data[:,(0,1)]
+X
+
+y=(iris.target ==0)
+y
+
+y=(iris.target==0).astype(int)
+y
+
+pclassifier=Perceptron(random_state=42)
+pclassifier.fit(X,y)
+
+y_pred=pclassifier.predict(X)
+y_pred
+
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y,y_pred))
+
+pclassifier.coef_
+
+pclassifier.intercept_
+##hence the equation is y= (-29.1)Sepal length + (42.8)Sepal width + 11
+
+# sepal length(cm),sepal width(cm),petal length(cm),petal width(cm) as input
+X=iris.data[:,:]
+X
+
+y=(iris.target ==0)
+y
+
+y=(iris.target==0).astype(int)
+y
+
+pclassifier=Perceptron(random_state=42)
+pclassifier.fit(X,y)
+y_pred=pclassifier.predict(X)
+y_pred
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y,y_pred))
+pclassifier.coef_
+pclassifier.intercept_
+
+##hence the equation is y= (1.9)Sepal length + (4.3)Sepal width + (-6.2 , -2.9)Peta + 1

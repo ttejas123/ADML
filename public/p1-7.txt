@@ -1,0 +1,86 @@
+Paper1 Practical 7
+Apply Decision tree algorithm with criterion=”entropy” on play_tennis.csv dataset and display decision tree.
+
+import pandas as pd  
+import numpy as np  
+import matplotlib.pyplot as plt  
+%matplotlib inline
+
+# reading data from CSV file. 
+# reading bank currency note data into pandas dataframe.
+data = pd.read_csv("D:/Downloads/PlayTennis.csv")
+
+# Exploratory Data Analysis
+print(data.shape)  
+print("------------")
+print(data)
+
+from sklearn.preprocessing import LabelEncoder
+Le = LabelEncoder()
+data['Outlook'] = Le.fit_transform(data['Outlook'])
+data['Temperature'] = Le.fit_transform(data['Temperature'])
+data['Humidity'] = Le.fit_transform(data['Humidity'])
+data['Wind'] = Le.fit_transform(data['Wind'])
+data['Play Tennis'] = Le.fit_transform(data['Play Tennis'])
+
+data
+X = data.drop('Play Tennis', axis=1)  
+y = data['Play Tennis']
+
+DecisionTreeClassifier?
+
+from sklearn.tree import DecisionTreeClassifier
+classifier= DecisionTreeClassifier(criterion="entropy")
+classifier.fit(X,y)
+from sklearn import tree
+fig = plt.figure(figsize=(20,10))
+tree.plot_tree(classifier)
+plt.show()
+
+from sklearn.model_selection import train_test_split  
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+DecisionTreeClassifier?
+
+# Training the Algorithm. Here we would use DecisionTreeClassifier
+from sklearn.tree import DecisionTreeClassifier
+classifier= DecisionTreeClassifier(criterion="entropy")
+classifier.fit(X_train,y_train)
+
+# make predictions on the test data
+y_pred =classifier.predict(X_test)
+
+# Evaluating the Algorithm
+from sklearn.metrics import classification_report, confusion_matrix,accuracy_score 
+print("\nconfusion_matrix ")  
+print(confusion_matrix(y_test, y_pred)) 
+print("\nclassification report ")   
+print(classification_report(y_test, y_pred))
+print("\naccuracy score ") 
+print(accuracy_score(y_test,y_pred))
+
+from sklearn import tree
+text_representation = tree.export_text(classifier)
+print(text_representation)
+
+from sklearn import tree
+fig = plt.figure(figsize=(25,20))
+tree.plot_tree(classifier)
+plt.show()
+
+X.info()
+
+X.columns
+
+#pip install graphviz
+
+from sklearn import tree
+import graphviz
+#import os
+#os.environ['PATH']+=os.pathsep+"D:\Program Files\Graphviz\bin"
+# DOT data
+dot_data = tree.export_graphviz(classifier)
+
+# Draw graph
+graph = graphviz.Source(dot_data) 
+graph

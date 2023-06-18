@@ -1,0 +1,193 @@
+Paper1 Practical 8
+Apply Naïve Bayes algorithm on disease dataset. Use Multinomial, Categorical and Gaussian Naïve bayes algorithms, with test size =20%
+
+##Naive Bayes
+##(Probabilistic classification algorithm)
+##1.Gaussian Naive Bayes
+##2.Multinomial Naive Bayes
+##3.Complement Naive Bayes
+##4.Bernoulli Naive Bayes
+##5.Categorical Naive Bayes
+##6.Out-of-core naive Bayes
+
+import pandas as pd  
+import numpy as np  
+import matplotlib.pyplot as plt  
+import seaborn as sns
+
+# reading data from CSV file. 
+# reading disease data into pandas dataframe.
+df = pd.read_csv("D:/Downloads/disease.csv")
+
+df.info()
+df.describe(include='O')
+
+# setting the dimensions of the plot
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Sore Throat'],data=df)
+plt.title("Category wise count of 'Sore Throat'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Fever'],data=df)
+plt.title("Category wise count of 'Fever'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Swollen Glands'],data=df)
+plt.title("Category wise count of 'Swollen Glands'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Congestion'],data=df)
+plt.title("Category wise count of 'Congestion'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Headache'],data=df)
+plt.title("Category wise count of 'Headache'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+fig, ax = plt.subplots(figsize=(3, 2))
+sns.countplot(x=df['Diagnosis'],data=df)
+plt.title("Category wise count of 'Diagnosis'")
+plt.xlabel("Category")
+plt.ylabel("Count")
+plt.show()
+
+cols=['Sore Throat', 'Fever', 'Swollen Glands', 'Congestion', 'Headache','Diagnosis']
+cols
+
+##Preprocessing
+from sklearn.preprocessing import LabelEncoder
+Le = LabelEncoder()
+df['Diagnosis'] = Le.fit_transform(df['Diagnosis']) 
+for i in range(0,len(Le.classes_)):
+  print(i, Le.classes_[i])
+df
+
+cols.pop() # remove last column from cols list (last column is diagnosis)
+cols
+
+not_cols=['Diagnosis']
+#encoding of data columns 'Sore Throat', 'Fever', 'Swollen Glands', 'Congestion', 'Headache'
+df_dummies=pd.get_dummies(df,columns=[col for col in cols if col not in not_cols],drop_first = True)
+
+df_dummies
+X = df_dummies.drop('Diagnosis', axis=1)  
+y = df_dummies['Diagnosis']
+
+# Training the Algorithm. Here we would use Multinomial Naive Bayes
+from sklearn.naive_bayes import MultinomialNB
+classifier= MultinomialNB()
+classifier.fit(X,y)
+
+##0 Allergy    1 Cold       2 Strep throat
+
+df_dummies.iloc[4,1:]
+import warnings
+warnings.simplefilter("ignore")
+
+if classifier.predict([[0,1,0,1,0]])==2:
+    print("Strep throat")
+elif classifier.predict([[0,1,0,1,0]])==1:
+    print("Cold")  
+else:
+    print("Allergy")
+
+import warnings
+warnings.simplefilter("ignore")
+if classifier.predict([[1,1,1,0,0]])==2:
+    print("Strep throat")
+elif classifier.predict([[1,1,1,0,0]])==1:
+    print("Cold")  
+else:
+    print("Allergy")
+
+##Gaussian Naive Bayes
+# Training the Algorithm. Here we would use Gaussian Naive bayes
+from sklearn.naive_bayes import GaussianNB
+classifier= GaussianNB()
+classifier.fit(X,y)
+
+import warnings
+warnings.simplefilter("ignore")
+if classifier.predict([[0,1,0,1,0]])==2:
+    print("Strep throat")
+elif classifier.predict([[0,1,0,1,0]])==1:
+    print("Cold")  
+else:
+    print("Allergy")
+
+import warnings
+warnings.simplefilter("ignore")
+if classifier.predict([[1,1,1,0,0]])==2:
+    print("Strep throat")
+elif classifier.predict([[1,1,1,0,0]])==1:
+    print("Cold")  
+else:
+    print("Allergy")
+
+
+##{Precision is defined as the ratio of correctly classified positive samples (True Positive) to a total number of classified positive samples (either correctly or incorrectly).
+Precision = True Positive/True Positive + False Positive
+
+Precision = TP/TP+FP
+
+The recall is calculated as the ratio between the numbers of Positive samples correctly classified as Positive to the total number of Positive samples. The recall measures the model's ability to detect positive samples. The higher the recall, the more positive samples detected.
+Recall = True Positive/True Positive + False Negative
+
+Recall = TP/TP+FN
+
+F1 score represents the model score as a function of precision and recall score. Mathematically, it can be represented as a harmonic mean of precision and recall score.
+F1 Score = 2* Precision Score * Recall Score/ (Precision Score + Recall Score/)}##
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import classification_report, accuracy_score,confusion_matrix,precision_score,recall_score,f1_score
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.3)
+
+classifier= MultinomialNB()
+classifier.fit(X_train,y_train)
+y_pred=classifier.predict(X_test)
+print("confusion matrix\n",confusion_matrix(y_test,y_pred))
+print("Accuracy: ",accuracy_score(y_test,y_pred))
+#print("Precision :",precision_score(y_test,y_pred))
+#print("Recall :",recall_score(y_test,y_pred))
+#print("F1 score :",f1_score(y_test,y_pred))
+print("Classification report :\n",classification_report(y_test,y_pred))
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import classification_report, accuracy_score,confusion_matrix,precision_score,recall_score,f1_score
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
+classifier= GaussianNB()
+classifier.fit(X_train,y_train)
+y_pred=classifier.predict(X_test)
+print("confusion matrix\n",confusion_matrix(y_test,y_pred))
+print("Accuracy: ",accuracy_score(y_test,y_pred))
+print("Precision :",precision_score(y_test,y_pred))
+print("Recall :",recall_score(y_test,y_pred))
+print("F1 score :",f1_score(y_test,y_pred))
+print("Classification report :\n",classification_report(y_test,y_pred))
+
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import CategoricalNB
+from sklearn.metrics import classification_report, accuracy_score,confusion_matrix,precision_score,recall_score,f1_score
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2)
+classifier= CategoricalNB()
+classifier.fit(X_train,y_train)
+y_pred=classifier.predict(X_test)
+print("confusion matrix\n",confusion_matrix(y_test,y_pred))
+print("Accuracy: ",accuracy_score(y_test,y_pred))
+print("Classification report :\n",classification_report(y_test,y_pred))

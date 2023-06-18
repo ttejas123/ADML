@@ -1,0 +1,144 @@
+Paper3 Practical 8
+Perform sentiment analysis on the product review dataset
+
+pip install nltk
+pip install WordCloud
+
+import pandas as pd 
+import numpy as np
+import sys
+import colorsys
+import nltk  #naturallanguagetoolkit
+
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('omw-1.4')
+
+#word_tokenize splits the sentences based on spaces
+from nltk.tokenize import word_tokenize 
+from nltk.tokenize import RegexpTokenizer
+
+from nltk.corpus import stopwords 
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.stem import PorterStemmer
+from wordcloud import WordCloud
+
+df.head()
+df.shape
+df["review"][1]
+
+word_list=[]
+for i in df["review"]:
+ token=word_tokenize(i)
+ word_list.append(token)
+
+#using the RegexpTokenizer
+word_list_re=[]
+for i in df["review"]:
+ token=RegexpTokenizer("[a-z|A-Z]+").tokenize(i)
+ word_list_re.append(token)
+
+word_list_re
+
+#removing stopwords
+#stopwords is preposition, pronoun, conjunction,etc
+clean_word_list=[]
+for i in word_list_re:
+ clean_words=[]
+ for j in i:
+    if j not in stopwords.words("english"):
+      clean_words.append(j)
+      #print(clean_words)
+ clean_word_list.append(clean_words)
+
+clean_word_list
+
+#converting into lower case
+lcase_word=[]
+for i in clean_word_list:
+ lower_row=[]
+ for j in i:
+    lower_row.append(j.lower())
+ lcase_word.append(lower_row)
+
+lcase_word
+
+#lemmatization 
+lemma_col=[]
+for i in lcase_word:
+ lemma_row=[]
+ for j in i:
+    lemma_row.append(WordNetLemmatizer().lemmatize(j))
+ lemma_col.append(lemma_row)
+lemma_col
+
+##Extracting POS tags
+pos_tag=[]
+for i in lemma_col:
+ pos_tag.append(nltk.pos_tag(i))
+
+pos_tag
+
+#NN means noun
+#context analysis through pos tag
+noun=[]
+for i in pos_tag:
+ noun_row=[]
+ for j in i:
+    if j[1].startswith("NN"):
+      noun_row.append(j[0])
+ noun.append(noun_row)
+noun
+np.array(noun).shape
+
+## Visualization through wordcount
+words=[]
+for i in noun:
+ for j in i:
+    words.append(j)
+
+str_noun=",".join(words)
+str_noun
+wc=WordCloud(background_color="black",max_words=50000,contour_color="steelblue")
+import matplotlib.pyplot as plt
+%matplotlib inline
+wc.generate(str_noun)
+
+plt.figure(figsize=(50,50))
+wc.to_image()
+
+from sklearn.feature_extraction.text import CountVectorizer
+noun_list=np.array(noun)
+noun_list.shape
+
+str_list=[]
+for i in noun:
+    str_list.append(",".join(i))
+feature_vector=CountVectorizer().fit_transform(str_list)
+feature_vector
+
+#sparse matrix
+feature_vector.toarray()
+
+
+##Classification and Prediction
+#splitting the dataset into training and validation set
+from sklearn.model_selection import train_test_split
+x_tr,x_test,y_tr,y_test=train_test_split(feature_vector,df["sentiment"],test_size=0.2,random_state=10)
+
+from sklearn.naive_bayes import MultinomialNB
+
+nb_mod=MultinomialNB().fit(x_tr,y_tr)
+
+p_tr=nb_mod.predict(x_tr)
+
+p_test=nb_mod.predict(x_test)
+
+from sklearn.metrics import accuracy_score
+
+accuracy_score(y_tr,p_tr)
+
+from sklearn.metrics import classification_report
+print(classification_report(y_tr,p_tr))

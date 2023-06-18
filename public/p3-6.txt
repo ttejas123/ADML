@@ -1,0 +1,155 @@
+Paper3 Practical 6
+Hierachical Clustering
+
+import pandas as pd 
+import numpy as np 
+from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.cluster import KMeans,AgglomerativeClustering
+import seaborn as sns 
+import matplotlib.pyplot as plt
+%matplotlib inline
+from sklearn.preprocessing import LabelEncoder
+Le = LabelEncoder()
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+from sklearn.metrics import silhouette_score
+import warnings
+warnings.filterwarnings("ignore")
+
+##Import the dataset
+df=pd.read_csv ("D:/Downloads/mtcars.csv")
+df
+
+##Perform EDA
+df.head()
+df.shape
+df.columns
+df.tail()
+df.info()
+df.describe()
+df.max()
+df.isnull()
+df.rename(columns={"Unnamed: 0":"model"},inplace=True)
+
+#checking the model column
+df.model.value_counts()
+
+sns.displot(df["carb"])
+sns.relplot(x="gear",y="carb",data=df)
+
+##Encode the data
+
+df1=df
+#lable encoding
+df1["model"]=LabelEncoder().fit_transform(df1["model"])
+df1.head()
+df1.dtypes
+
+##Perform Scaling
+# Initialise the Scaler
+scaler = StandardScaler()
+
+# To scale Data
+scaler.fit(df1)
+
+##Select the features
+x = [['mpg','crab']]
+x = df1.iloc[:,0:20]
+y = df1.iloc[:,-1]
+from sklearn.ensemble import ExtraTreesClassifier
+model = ExtraTreesClassifier()
+model.fit(x,y)
+print(model.feature_importances_)
+feat_importances = pd.Series(model.feature_importances_, index=x.columns)
+feat_importances.nlargest(10).plot(kind= 'barh')
+plt.show()
+
+
+##KMeans Clustering
+wcss=[]
+for i in range(2,21):
+    kmod=KMeans(n_clusters=i,init="k-means++")
+    kmod.fit(df1)
+    wcss.append(kmod.inertia_)
+wcss
+
+##Create elbow plot
+plt.plot(range(2,21),wcss,c="green",marker="o",markerfacecolor="red")
+plt.title('Elbow Method For Optimal k')
+plt.xlabel('K')
+plt.ylabel('wcss')
+plt.show()
+
+kmodel=KMeans(n_clusters=2).fit(df1)
+silhouette_score(df1,kmodel.labels_,metric="euclidean")
+#Best Silhouette Score
+
+## Create dendrogram
+Z = linkage(df, 'ward')
+dend=dendrogram(Z,truncate_mode="lastp")
+plt.title('Herarchical Clustering Dendrogram')
+plt.xlabel('Sample Index')
+plt.ylabel('Distance (Ward)')
+#dendrogram(Z,labels=df.index, leaf_rotation=90)
+plt.show()
+
+Z = linkage(df, 'single')
+dend=dendrogram(Z,truncate_mode="lastp")
+plt.title("Dendrogram on Usarrest dataset with single linkage")
+plt.xlabel("Number of clusters")
+plt.ylabel("Distance between clusters")
+plt.show()
+
+##Perform Hierachical Clustering
+Z = linkage(df, 'complete')
+dend=dendrogram(Z,truncate_mode="lastp")
+plt.title("Dendrogram on Usarrest dataset with complete linkage")
+plt.xlabel("Number of clusters")
+plt.ylabel("Distance between clusters")
+plt.show()
+
+hclust=AgglomerativeClustering(n_clusters=12,linkage="ward",affinity="euclidean")
+cluster_name=hclust.fit_predict(df1)
+hclust.labels_
+cluster_name
+
+df1["cluster_name"]=cluster_name
+df1.head()
+
+
+##Compare the results
+silhouette_scores = [] 
+
+for n_cluster in range(2,8):
+    silhouette_scores.append( 
+        silhouette_score(df1, AgglomerativeClustering(n_clusters = n_cluster).fit_predict(df1))) 
+    
+# Plotting a bar graph to compare the results 
+
+k = [2,3,4,5,6,7] 
+plt.bar(k, silhouette_scores) 
+plt.xlabel('Number of clusters') 
+plt.ylabel('Silhouette Score') 
+plt.show() 
+
+## Analyse the Silhouette Score
+s=silhouette_score(df1,hclust.labels_,metric="euclidean")
+s
+s_score=[]
+for i in range(2,11):
+    model=AgglomerativeClustering(n_clusters=i,linkage="ward",affinity="euclidean")
+    model.fit(df1)
+    s=silhouette_score(df1,hclust.labels_,metric="euclidean")
+    s_score.append(s)
+plt.plot(range(2,11),s_score,marker="o")
+model_new=AgglomerativeClustering(n_clusters=2,affinity="euclidean")
+model_new.fit(df1)
+silhouette_score(df1,model_new.labels_,metric="euclidean")
+df1["cluster_name"].value_counts()
+df1
+sns.displot(df1["mpg"])
+sns.displot(df1["cluster_name"])
+
+Compare the results
+Best Silhouette Score is 0.6233731146372111
+Data point i is very compact within the cluster to which belongs and far away from the other cluster

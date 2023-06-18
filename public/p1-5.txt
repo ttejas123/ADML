@@ -1,0 +1,104 @@
+Paper1 Practical 5
+Using exams data, model the problem to predict students test preparation (completed=1 and none=0) using logistic regression. Display confusion matrix, accuracy and log loss.
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+df=pd.read_csv('exams.csv')
+df.head()
+df.shape
+df.describe(include='all')
+df['race/ethnicity'].value_counts()
+df.info()
+df.columns
+df.isnull().sum()
+object_columns = df.select_dtypes(include=['object']).columns
+numeric_columns = df.select_dtypes(exclude=['object']).columns
+
+object_columns
+
+numeric_columns
+
+df['test preparation course'].value_counts()
+
+df['test preparation course']=np.where(df['test preparation course']== 'none',0,1)
+df['test preparation course'].value_counts()
+
+df.gender.value_counts(normalize=True)*100
+
+df['race/ethnicity'].value_counts(normalize=True)*100
+
+df['parental level of education'].value_counts(normalize=True)*100
+
+df['lunch'].value_counts(normalize=True)*100
+
+df['test preparation course'].value_counts(normalize=True)*100
+
+df.corr()
+
+X = df.drop(['test preparation course'],axis=1) #independent attributes
+y = df['test preparation course'] #dependent attributes
+
+from sklearn.model_selection import train_test_split # importing neccessary modules
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=101,stratify= y) #train test split
+
+#Dummification 
+X_train = pd.get_dummies(X_train,dtype='int8')
+X_test = pd.get_dummies(X_test,dtype='int8')
+
+X_train.head()
+
+from sklearn.preprocessing import  StandardScaler
+scaler = StandardScaler() #importing Scaler
+X_train[numeric_columns] = scaler.fit_transform(X_train[numeric_columns])
+X_test[numeric_columns] = scaler.transform(X_test[numeric_columns])
+
+from sklearn.linear_model import LogisticRegression
+logistic_model = LogisticRegression()
+logistic_model.fit(X_train,y_train)
+#Train data prediction
+train_preds = logistic_model.predict(X_train)
+#Test data prediction
+test_preds = logistic_model.predict(X_test)
+
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import classification_report
+from sklearn.metrics import accuracy_score,recall_score,precision_score
+print("Training data : ")
+print(confusion_matrix(y_train,train_preds))
+print("\nTesting data : ")
+print(confusion_matrix(y_test,test_preds))
+#Classification report
+print("\nClassification Report : ")
+print(classification_report(y_test,test_preds))
+#Accuracy score
+print("\nAccuracy score : ")
+print(accuracy_score(y_test,test_preds))
+#Precision score
+print("\nPrecision score : ")
+print(precision_score(y_test,test_preds))
+#Recall score
+print("\nRecall score : ")
+print(recall_score(y_test,test_preds))
+
+#Log loss
+from sklearn.metrics import log_loss
+print("\nLog-loss (Test) : ")
+print(log_loss(y_test,test_preds))
+print("\nLog-loss (Train): ")
+print(log_loss(y_train,train_preds))
+
+from sklearn.metrics import roc_curve, auc
+fpr, tpr, threshold = roc_curve(y_train, train_preds)
+roc_auc = auc(fpr, tpr)
+roc_auc
+
+plt.plot([0,1],[0,1],color='navy', lw=2, linestyle='--')
+plt.plot(fpr,tpr,color='orange', lw=3, label='ROC curve (area = %0.2f)' % roc_auc)
+plt.xlabel('FPR')
+plt.ylabel('TPR')
+plt.legend(loc="lower right")
+plt.show()

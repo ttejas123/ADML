@@ -1,0 +1,108 @@
+Paper1 Practical 4
+Using Social network ads model the problem to predict whether user will purchase the product or not using logistic regression. Display confusion matrix, accuracy and log loss.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df=pd.read_csv('Social_Network_Ads.csv')
+df.head()
+df.info()
+df.columns
+
+import seaborn as sns
+sns.pairplot(df)
+plt.show()
+
+df = pd.get_dummies(df, columns=['Gender'],drop_first=True)
+df.columns
+df.info()
+
+X=df.iloc[:,[1,2,4]].values  #input variables Age and EstimatedSalary
+y=df.iloc[:,3].values   #output variable Purchased
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.3,random_state=0)
+
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+X_train=sc.fit_transform(X_train)
+X_test=sc.transform(X_test)
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(solver='liblinear',random_state=1)
+classifier.fit(X_train,y_train)
+
+y_pred=classifier.predict(X_test)
+y_train_pred=classifier.predict(X_train)
+y_pred
+y_test
+X_test.shape
+# confusion matrix
+from sklearn.metrics import confusion_matrix 
+cm=confusion_matrix(y_test,y_pred)
+cm
+
+precision= cm[0,0]/(cm[0,0]+cm[1,0])
+print(precision)
+
+recall=cm[0,0]/(cm[0,0]+cm[0,1])
+print(recall)
+
+accuracy=(cm[0,0]+cm[1,1])/(cm[0,0]+cm[0,1]+cm[1,0]+cm[1,1])
+print(accuracy)
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+from sklearn.metrics import log_loss
+print(log_loss(y_test,y_pred))
+
+#check on training data
+cm=confusion_matrix(y_train,y_train_pred)
+print(cm)
+print(classification_report(y_train,y_train_pred))
+
+print(log_loss(y_train,y_train_pred))
+
+df['Purchased'].value_counts()
+
+new1_df=df[df['Purchased']==1].head(100)
+new0_df=df[df['Purchased']==0].head(100)
+
+new_df=pd.concat([new1_df,new0_df])
+new_df.shape
+new_df
+new_df.columns
+
+X=new_df.iloc[:,[1,2,4]].values  #input variables Age and EstimatedSalary
+y=new_df.iloc[:,3].values   #output variable Purchased
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.3,random_state=0)
+
+from sklearn.preprocessing import StandardScaler
+sc=StandardScaler()
+X_train=sc.fit_transform(X_train)
+X_test=sc.transform(X_test)
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(solver='liblinear',random_state=1)
+classifier.fit(X_train,y_train)
+y_pred=classifier.predict(X_test)   #on testing data
+y_train_pred=classifier.predict(X_train) #on training data
+
+from sklearn.metrics import confusion_matrix 
+cm=confusion_matrix(y_test,y_pred)
+print('Confusion matrix \n',cm)
+
+accuracy=(cm[0,0]+cm[1,1])/(cm[0,0]+cm[0,1]+cm[1,0]+cm[1,1])
+print('Accuracy : ', accuracy)
+
+from sklearn.metrics import log_loss
+print('Log loss test : ',log_loss(y_test,y_pred))
+print('Log loss train : ',log_loss(y_train,y_train_pred))
+
+from sklearn.metrics import confusion_matrix 
+cm=confusion_matrix(y_train,y_train_pred)
+print('Confusion matrix \n',cm)

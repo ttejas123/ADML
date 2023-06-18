@@ -1,0 +1,87 @@
+Paper1 Practical 1
+Q1
+male(naval).
+male(noel).
+male(ratan).
+male(jimmy).
+male(neville).
+
+female(simone).
+female(sooni).
+female(aloo).
+female(leah).
+female(maya).
+
+fatherof(ratan,naval).
+fatherof(jimmy,naval).
+fatherof(noel,naval).
+fatherof(neville ,noel).
+
+motherof(noel,simone).
+motherof(ratan,sooni).
+motherof(jimmy,sooni).
+motherof(neville ,aloo).
+motherof(leah ,aloo).
+motherof(maya ,aloo).
+
+sister(X,Y):-
+	X \= Y,
+	motherof(X,M),
+	motherof(Y,M),
+	female(Y).
+
+brother(X,Y):-
+	X \= Y,
+	fatherof(X,Z),
+	fatherof(Y,Z),
+	male(Y).
+
+uncle(X,Y):-
+	fatherof(X,Z),
+	brother(Z,Y).
+
+sibling(X,Y):-
+	X \= Y,
+	motherof(X,M),
+	motherof(Y,M),
+	(female(X);male(X);male(Y);female(Y)).
+
+Q2
+count10(10) :- write(10),nl. 
+count10(X) :-
+  	    write(X),
+	   nl, 
+	   Y is X + 1,
+	   count10(Y). 
+
+Q4
+digits_reverse(N,X) :-
+	reversed(N,X,0).
+
+reversed(0,R,R).
+
+reversed(N,X,R) :-
+   N > 0,
+   N0 is N//10,
+   R1 is R*10 + (N mod 10),
+   reversed(N0,X,R1).
+
+Q3
+/* find sum of list elements */
+
+findsum(L):-
+    sum(L,S),
+    write('Sum Of Given List :'),write(S).
+
+sum([],0).
+
+sum([X|Tail],S):-
+  sum(Tail,Temp),
+  S is Temp + X.
+
+display_numbers(1) :- write(1), nl.
+display_numbers(N) :- 
+    N > 1,
+    write(N), nl,
+    N1 is N - 1,
+    display_numbers(N1).

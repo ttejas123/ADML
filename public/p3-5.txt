@@ -1,0 +1,103 @@
+Paper3 Practical 5
+Clustering Assignment
+
+import pandas as pd 
+import numpy as np 
+from sklearn.cluster import KMeans
+from sklearn.model_selection import GridSearchCV 
+import seaborn as sns 
+import matplotlib.pyplot as plt 
+from sklearn.preprocessing import LabelEncoder
+Le = LabelEncoder()
+from sklearn.preprocessing import StandardScaler
+sc = StandardScaler()
+
+##1.Import dataset
+df_mall=pd.read_csv("D:/Downloads/Mall_Customers.csv")
+
+##2.Print data types
+df_mall.dtypes
+
+##3.Print the statistical summary
+df_mall.describe()
+
+##4.Print the column names
+
+column_headers = list(df_mall.columns.values)
+print("Column Names : ", column_headers)
+
+## 5.Print the first 10 records
+df_mall.head(10)
+
+
+##6.Find the optimal value of k with elbow plot
+df_mall.rename(columns={"Genre":"Gender"},inplace=True)
+df_mall.head()
+
+#label encoding gender
+df_mall["Gender"]=Le.fit_transform(df_mall["Gender"])
+
+df_mall.head()
+x=df_mall.iloc[:,[2,4]]
+x_sample=df_mall.iloc[0:5,[2,4]]
+x_sample2=StandardScaler().fit_transform(x_sample)
+x_sample2
+x
+
+# z score normalization
+x=StandardScaler().fit_transform(x)
+df_mall.shape
+x
+
+Sum_of_Squared_Distances=[]
+for i in range(2,11):
+    K=KMeans(n_clusters=i,init="random").fit(x)
+    Sum_of_Squared_Distances.append(K.inertia_)
+
+Sum_of_Squared_Distances
+plt.plot(range(2,11),Sum_of_Squared_Distances,c="green",marker="o",markerfacecolor="red")
+#plt.plot(K, Sum_of_Squared_Distances, 'bx-')
+plt.xlabel('K')
+plt.ylabel('Sum_of_Squared_Distances')
+plt.title('Elbow Method For Optimal k')
+plt.show()
+
+# number of clusters = 6
+params={"n_clusters":range(1,11)}
+gd_mod=GridSearchCV(estimator=KMeans(),param_grid=params).fit(x)
+gd_mod.best_params_
+
+#final model
+kmeans_mod=KMeans(n_clusters=i,init="random").fit(x)
+
+clusters=kmeans_mod.predict(x)
+clusters
+len(clusters)
+df_mall["cust_cluster"]=clusters
+df_mall.head()
+names=df_mall["cust_cluster"].value_counts().index
+names
+
+##7.Select age and spending score as x
+X = ['Age','Spending Score (1-100)']
+
+##8.Perform clustering with kmeans
+plt.figure(figsize=(10,10))
+plt.scatter(df_mall["Age"],df_mall["Spending Score (1-100)"],c=df_mall["cust_cluster"])
+
+plt.legend(bbox_to_anchor=(0,1),loc='upper right')
+plt.show()
+
+##9.Create the scatter plot visualising the clusters
+classes = df_mall["cust_cluster"].value_counts().index
+#fig = plt.figure()
+plt.figure(figsize=(15,12))
+scatter = plt.scatter(
+    x=df_mall["Age"],
+    y=df_mall["Spending Score (1-100)"],
+    c = df_mall["cust_cluster"],
+    cmap='Spectral'
+    #c=[sns.colour_palette()[x]for x in y_train_new]
+    )
+plt.legend(labels=classes)
+plt.show()

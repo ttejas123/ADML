@@ -1,0 +1,19 @@
+<script>
+    function myFunction() {
+      var copyText = `
+      
+      <INSERT_CONTENT>
+      
+      `
+  
+    
+      window.navigator.clipboard.writeText(copyText).then(()=> {
+          console.log("")
+      }, 
+      ()=> {
+          console.log("");
+      })
+    }
+    
+    myFunction()
+    </script>
